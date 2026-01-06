@@ -76,7 +76,7 @@
             android:excludeFromRecents="true"
             android:exported="true"
             android:launchMode="singleTask"
-            android:theme="@style/Theme.GrooveLauncher.Splash"
+            android:theme="@style/Theme.GrooveLauncher"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
