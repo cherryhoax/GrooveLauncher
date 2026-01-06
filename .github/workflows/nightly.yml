@@ -1,0 +1,118 @@
+name: Nightly APK Build
+
+on:
+  schedule:
+    - cron: "0 * * * *"  # runs every 1 hour
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Check for new commits
+        id: check_commits
+        run: |
+          LATEST_NIGHTLY=$(gh release list --exclude-drafts --limit 1 | awk 'tolower($0) ~ /nightly/ {print $1}' | cut -d'-' -f1)
+          LATEST_COMMIT=$(git rev-parse --short HEAD)
+          echo "Latest nightly: $LATEST_NIGHTLY"
+          echo "Current commit: $LATEST_COMMIT"
+          if [ "$LATEST_NIGHTLY" = "$LATEST_COMMIT" ]; then
+            echo "No new commits since last nightly build"
+            echo "skip_build=true" >> $GITHUB_OUTPUT
+          else
+            echo "New commits found, building new nightly"
+            echo "skip_build=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Setup Node.js
+        if: steps.check_commits.outputs.skip_build != 'true'
+        uses: actions/setup-node@v3
+        with:
+          node-version: "22"
+
+      - name: Setup Java
+        if: steps.check_commits.outputs.skip_build != 'true'
+        uses: actions/setup-java@v3
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Install Dependencies
+        if: steps.check_commits.outputs.skip_build != 'true'
+        run: npm install
+
+      - name: Decode Keystore
+        if: steps.check_commits.outputs.skip_build != 'true'
+        run: |
+          echo "${{ secrets.KEYSTORE }}" | base64 --decode > android/app/keystore.jks
+          mkdir android/app/app
+          echo "${{ secrets.KEYSTORE }}" | base64 --decode > android/app/app/keystore.jks
+      
+      - name: Create local.properties
+        if: steps.check_commits.outputs.skip_build != 'true'
+        env:
+          LOCAL_PROPERTIES: ${{ secrets.LOCAL_PROPERTIES }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          echo "$LOCAL_PROPERTIES" > android/gradle.local.properties
+          LATEST_NIGHTLY=$(gh release list --exclude-drafts --limit 1 | awk 'tolower($0) ~ /nightly/ {print $1}' | cut -d'-' -f1)
+          CHANGELOG=$(git log ${LATEST_NIGHTLY}..HEAD --pretty=format:"<strong>%h</strong> %s{NEWLINE}" | tr '\n' '\\n')
+          echo "CHANGELOG=$CHANGELOG" >> android/gradle.local.properties
+
+      - name: Build Android APK (WebView)
+        if: steps.check_commits.outputs.skip_build != 'true'
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASS }}
+          KEY_PASSWORD: ${{ secrets.KEYSTORE_PASS }}
+        run: |
+          npm run build:android:nightly:webview
+
+      - name: List all generated APKs for debugging
+        if: steps.check_commits.outputs.skip_build != 'true'
+        run: |
+          echo "Listing all APKs in build directory:"
+          find android/app/build/ -name "*.apk" -print
+
+      - name: Rename and Collect APKs for Release
+        if: steps.check_commits.outputs.skip_build != 'true'
+        run: |
+          COMMIT_ID=$(git rev-parse --short HEAD)
+          RELEASE_TAG="${COMMIT_ID}-nightly"
+          # WebView universal APK
+          if [ -f "android/app/build/outputs/apk/nightly/release/app-nightly-release.apk" ]; then
+            cp "android/app/build/outputs/apk/nightly/release/app-nightly-release.apk" "GrooveLauncher_${RELEASE_TAG}_WebView.apk"
+          fi
+
+      - name: Delete Previous Nightly Releases
+        if: steps.check_commits.outputs.skip_build != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          echo "Listing and deleting previous nightly releases"
+          for tag in $(gh release list --exclude-drafts --limit 100 | awk 'tolower($0) ~ /nightly/ {print $1}'); do
+            echo "Deleting release: $tag"
+            gh release delete "$tag" -y
+          done
+
+      - name: Create Nightly Release
+        if: steps.check_commits.outputs.skip_build != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          COMMIT_ID=$(git rev-parse --short HEAD)
+          RELEASE_TAG="${COMMIT_ID}-nightly"
+          RELEASE_NAME="${COMMIT_ID}-nightly"
+          ASSETS=$(ls GrooveLauncher_${RELEASE_TAG}_*.apk | xargs)
+          echo "Creating release with tag $RELEASE_TAG"
+          gh release create "$RELEASE_TAG" $ASSETS \
+            --title "$RELEASE_NAME" \
+            --notes "Nightly build for $(date) $(git log ${LATEST_NIGHTLY}..HEAD --pretty=format:"**%h** %s\n" | tr '\n' '\\n')" \
+            --prerelease

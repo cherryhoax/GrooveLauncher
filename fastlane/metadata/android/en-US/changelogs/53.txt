@@ -1,0 +1,1 @@
+This update includes expanded OEM support with new icons (Video, Wallet, Storage, Notes), fixes a tile display issue for icon packs, and resolves a Groove settings softlock.

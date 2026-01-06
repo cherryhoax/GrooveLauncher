@@ -1,0 +1,278 @@
+body {
+    --ui-scale: 1;
+    --window-raw-inset-left: 0px;
+    --window-raw-inset-top: 0px;
+    --window-raw-inset-right: 0px;
+    --window-raw-inset-bottom: 0px;
+    --window-inset-left: calc(var(--window-raw-inset-left) / var(--ui-scale));
+    --window-inset-top: calc(var(--window-raw-inset-top) / var(--ui-scale));
+    --window-inset-right: calc(var(--window-raw-inset-right) / var(--ui-scale));
+    --window-inset-bottom: calc(var(--window-raw-inset-bottom) / var(--ui-scale));
+    --animation-duration-scale: 1;
+
+}
+
+.system-bar {
+    position: fixed;
+    z-index: 10;
+    left: 0px;
+    width: 100%;
+    height: 0px;
+    pointer-events: none;
+
+    body.light-mode & {
+        filter: invert(100%);
+    }
+
+    &.system-status-bar {
+        top: 0px;
+        height: var(--window-inset-top);
+    }
+
+    &.system-navigation-bar {
+        bottom: 0px;
+        height: var(--window-inset-bottom);
+        display: flex;
+        pointer-events: all !important;
+        z-index: 9999999;
+        padding: 0px 20px;
+        box-sizing: border-box;
+
+        button {
+            flex-grow: 1;
+            background-size: 40px !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+            border: none;
+            background-color: transparent;
+
+            &:nth-child(2) {
+                filter: contrast(0) brightness(2);
+                background-size: auto 30px !important;
+            }
+
+            &:active {
+                opacity: .5;
+            }
+        }
+    }
+
+    &.system-bar-preview {
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        z-index: 999999;
+        filter: none !important;
+
+        body.groove-mock & {
+            background-color: rgb(black, 0.5);
+
+
+        }
+
+        body.light-mode.groove-mock & {
+            background-color: rgb(white, 0.5);
+
+        }
+
+        --left: var(--window-inset-left);
+        --top: var(--window-inset-top);
+        --right: var(--window-inset-right);
+        --bottom: var(--window-inset-bottom);
+        clip-path: polygon(0% 0%, 0% 100%, var(--left) 100%, var(--left) var(--top), calc(100% - var(--right)) var(--top), calc(100% - var(--right)) calc(100% - var(--bottom)), var(--left) calc(100% - var(--bottom)), var(--left) 100%, 100% 100%, 100% 0%);
+    }
+}
+
+.status-bar-mock {
+    position: fixed;
+    z-index: 11;
+    left: 0px;
+    width: 100%;
+    height: 0px;
+    top: 0px;
+    height: var(--window-inset-top);
+    background: var(--metro-background);
+}
+
+
+body:not(.groove-mock) {
+    .system-bar {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+    }
+}
+.groove-element {
+    &.groove-element-alert-layer {
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        width: 100vw;
+        height: 100vh;
+        z-index: 1000;
+        background: rgb(black, 0.5);
+
+        body.light-mode & {
+            background: rgb(white, 0.5);
+        }
+
+        * {
+            color: CanvasText;
+        }
+
+        animation: 0.3s ease-out groove-element-alert-layer-enter forwards;
+
+        &.exit {
+            animation: 0.3s ease-out groove-element-alert-layer-exit forwards;
+        }
+
+        @keyframes groove-element-alert-layer-enter {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes groove-element-alert-layer-exit {
+            0% {
+                opacity: 1;
+            }
+
+            29.99% {
+                opacity: 1;
+            }
+
+            30% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+    }
+
+    &.groove-element-alert {
+        position: absolute;
+        z-index: 1001;
+        left: var(--window-inset-left);
+        top: 0px;
+        min-width: 270px;
+        width: calc(100% - var(--window-inset-left) - var(--window-inset-right));
+        min-height: 122px;
+        //  display: flex;
+        //  flex-direction: column;
+        animation: .25s groove-element-alert-enter cubic-bezier(0.075, 0.82, 0.165, 1) forwards;
+        padding: 25px;
+        padding-top: var(--window-inset-top);
+        box-sizing: border-box;
+        perspective: inherit;
+        perspective-origin: 50% 50vh;
+
+        &.exit {
+            animation: 0.1s ease-in groove-element-alert-exit forwards;
+        }
+
+        @keyframes groove-element-alert-enter {
+            from {
+                transform: rotateX(60deg);
+            }
+
+            to {
+                transform: rotateX(0deg);
+            }
+        }
+
+        @keyframes groove-element-alert-exit {
+            0% {
+                transform: rotateX(0deg);
+            }
+
+            99.99% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+                transform: rotateX(-90deg);
+            }
+        }
+
+        button.groove-element-alert-action {
+            @include metro-button;
+            background-color: transparent;
+            margin: 0px;
+            height: 48px;
+            text-align: center;
+            text-transform: lowercase;
+            /*
+            &.default {
+                font-weight: 600;
+            }
+
+
+            &.destructive {
+                @media (prefers-color-scheme: light) {
+                    color: var(--colors-red);
+                }
+
+                @media (prefers-color-scheme: dark) {
+                    color: var(--colors-red-dark);
+                }
+            }*/
+            width: 100%;
+
+            &:not(:last-child) {
+                margin-bottom: 25px;
+            }
+
+        }
+
+        &.inline {
+            button.groove-element-alert-action {
+                width: calc(50% - 12.5px);
+                float: left;
+                margin-bottom: 0px;
+
+                &:not(:last-child) {
+                    margin-right: 25px;
+                }
+
+            }
+        }
+
+        p.groove-element-alert-title,
+        p.groove-element-alert-body {
+            margin: 0px;
+            padding: 0px;
+            min-width: 10px;
+        }
+
+        p.groove-element-alert-title {
+            font-size: 32px;
+            margin-top: 10px;
+        }
+
+        p.groove-element-alert-body {
+            font-size: 22px;
+            margin-top: 22px;
+            min-height: 18px;
+            margin-bottom: 32px;
+        }
+
+
+
+        background: #1F1F1F;
+
+        body.light-mode & {
+            background: #DDDDDD;
+        }
+
+        overflow: hidden;
+    }
+}

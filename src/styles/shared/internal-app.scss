@@ -1,0 +1,67 @@
+@import "./../colors.scss";
+@import "fonts.scss";
+@import "./../flowTouch.scss";
+@import "./../accessibility.scss";
+@import "./../textDirection.scss";
+
+body,
+html {
+  color-scheme: dark;
+  color: var(--metro-foreground);
+  perspective: var(--flow-perspective);
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 100vw;
+  height: 100vh;
+  margin: 0px;
+  padding: 18px 22px;
+  box-sizing: border-box;
+  --animation-duration-scale: 1;
+}
+
+body {
+  &.showBackground {
+    background-color: var(--metro-background) !important;
+  }
+}
+
+img {
+  text-indent: -10000px
+}
+
+* {
+  font-family: SymbolsNerd, OpenSans;
+
+  body.font-1 & {
+    font-family: SymbolsNerd, NotoSans;
+  }
+
+  body.font-2 & {
+    font-family: SymbolsNerd, CustomFont, OpenSans;
+  }
+
+  touch-action: none;
+  user-select: none;
+  user-drag: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  outline: transparent;
+  cursor: default !important;
+}
+
+div.flow-scrollable {
+  transform-style: preserve-3d;
+  will-change: transform;
+
+  &:not(.no-bottom-padding)::after {
+    content: "";
+    display: flex;
+    height: 50px;
+    width: 100%;
+    position: relative;
+    background: transparent;
+    margin: 0px;
+    padding: 0px;
+  }
+}

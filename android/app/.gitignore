@@ -1,0 +1,5 @@
+/build
+/release
+/regular
+src/main/assets/*
+/app/keystore.jks

@@ -1,0 +1,139 @@
+:root {
+    --original-accent-color: var(--accent-color);
+}
+
+
+body.high-contrast {
+    &#app {
+        --metro-transparent-2: black !important;
+
+        div.app-list {
+            --accent-color: var(--metro-foreground);
+
+            div.groove-app-tile {
+                div.groove-app-tile-icon {
+                    background: black;
+                    position: relative;
+
+                    &::after {
+                        content: "";
+                        position: absolute;
+                        left: 0px;
+                        top: 0px;
+                        width: 100%;
+                        height: 100%;
+                        box-shadow: inset 0px 0px 0px 3px var(--metro-foreground) !important;
+                    }
+
+                    img {}
+                }
+            }
+        }
+
+        #main-home-slider {
+            div.tile-list-page {
+                mix-blend-mode: normal !important;
+                box-shadow: none !important;
+                background: transparent !important;
+            }
+
+            div.slide-page-home.wallpaper-behind {
+                background-image: none !important;
+                background-color: var(--metro-background) !important;
+            }
+
+            div.groove-home-tile {
+                div.groove-home-inner-tile {
+                    box-shadow: inset 0px 0px 0px 3px var(--metro-foreground) !important;
+                    background-color: black !important;
+
+                    p.groove-home-tile-title {
+                        color: white !important;
+                        background: black !important;
+                    }
+                }
+            }
+        }
+    }
+
+
+    #theme-tab {
+        * {
+            --accent-color: var(--original-accent-color) !important;
+        }
+    }
+
+    * {
+        --accent-color: var(--metro-foreground) !important;
+    }
+
+    p.group-description {
+        color: var(--metro-foreground) !important;
+    }
+
+    .groove-element.groove-app-tile {
+        .groove-app-tile-imageicon {
+            scale: calc(46 / 52);
+        }
+    }
+
+    p.groove-list-view-item-description,
+    p.text {
+        opacity: 1 !important;
+    }
+
+    div.innerApp {
+        &>div.app-tabs {
+            p.active-tab {
+                background-color: var(--metro-foreground) !important;
+                color: var(--metro-background) !important;
+            }
+        }
+    }
+
+    div.app-tabs p {
+        opacity: 1 !important;
+    }
+
+    div.stats-text {
+        opacity: 1 !important;
+    }
+
+    #about-app-version,
+    #about-webview-version {
+        opacity: 1 !important;
+    }
+
+    div.credit-item>p>span {
+        opacity: 1 !important;
+    }
+
+    #theme-tab {
+        * {
+            --accent-color: var(--original-accent-color) !important;
+        }
+    }
+
+    body * {
+        --accent-color: var(--metro-foreground) !important;
+    }
+
+    div.letter-selector-row {
+        div.letter-selector-letter {
+            &.disabled {
+                --metro-foreground: #737373;
+                background-color: var(--metro-background) !important;
+
+            }
+
+            background-color: var(--metro-background) !important;
+            box-shadow: inset 0px 0px 0px 3px var(--metro-foreground),
+            0px 0px 0px 1px var(--metro-background) !important;
+            color: var(--metro-foreground) !important;
+        }
+    }
+
+    &.light-mode div.letter-selector-row div.letter-selector-letter.disabled {
+        --metro-foreground: #bfbfbf !important;
+    }
+}
