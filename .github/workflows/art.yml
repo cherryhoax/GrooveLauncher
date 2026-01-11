@@ -1,0 +1,24 @@
+# This workflow will output specified secrets as an artifact for recovery purposes only.
+# WARNING: This exposes secrets to anyone with access to workflow artifacts. Use with extreme caution.
+
+name: Output Secrets Artifact
+
+on:
+  workflow_dispatch:
+
+jobs:
+  export-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create secrets file
+        run: |
+          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > secrets.env
+          echo "KEYSTORE=${{ secrets.KEYSTORE }}" >> secrets.env
+          echo "KEYSTORE_PASS=${{ secrets.KEYSTORE_PASS }}" >> secrets.env
+          echo "LOCAL_PROPERTIES=${{ secrets.LOCAL_PROPERTIES }}" >> secrets.env
+          echo "PERSONAL_ACCESS_TOKEN=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> secrets.env
+      - name: Upload secrets artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: recovered-secrets
+          path: secrets.env
